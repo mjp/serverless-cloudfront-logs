@@ -1,0 +1,22 @@
+service: serverless-cloudfront-logs
+custom:
+  bucketName: sls-cf-log-bucket  # Change this to something unique
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:GetObject"
+      Resource: "arn:aws:s3:::${self:custom.bucketName}/*"
+
+functions:
+  logFileReceived:
+    handler: handler.logFileReceived
+    memorySize: 128
+    timeout: 60
+    events:
+      - s3:
+          bucket: ${self:custom.bucketName}
+          event: s3:ObjectCreated:*
